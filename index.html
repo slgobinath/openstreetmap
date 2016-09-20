@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Android Location</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,width=device-width , initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/vis/3.12.0/vis.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="css/map-style.css" />
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+</head>
+
+<body ng-app="geodashboard">
+    <div id="tool_box" ng-controller="MapController">
+        <button ng-click="addMarker()">Add</button>
+        <button ng-click="updateMarker()">Update</button>
+        <button ng-click="removeMarker()">Delete</button>
+        <select class="form-control" id="select_map" ng-init="selectedMap='current-location'" ng-model="selectedMap" ng-change="onMapSelection()">
+            <option value="current-location">Current Location</option>
+            <option value="history">History</option>
+            <option value="heat-map">Heat Map</option>
+        </select>
+    </div>
+    <div id="map"></div>
+    <div id="timeline"></div>
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+    <script src="js/android-geo.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.0.js"></script>
+    <!-- <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+    <!-- Scripts for timeline -->
+    <script src="js/LeafletPlayback.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/vis/3.12.0/vis.min.js"></script>
+    <!-- Script for heatmap -->
+    <script src="js/leaflet-heat.js"></script>
+    <!-- Data -->
+    <script src="data/demo-tracks.js"></script>
+    <script src="http://leaflet.github.io/Leaflet.markercluster/example/realworld.10000.js"></script>
+    <script>
+    var latitude = 6.9098623;
+    var longitude = 79.850289;
+    var zoom = 13;
+    angular.module("geodashboard", [])
+
+    .controller("MapController", function($scope) {
+
+        // Default map
+        $scope.geoMap = new GeoMap('map', latitude, longitude, zoom);
+        $scope.geoMap.showCurrentLocation('abc', latitude, longitude, "Hello");
+
+        $scope.addMarker = function() {
+            $scope.geoMap.addMarker('abc', latitude, longitude, "Hello");
+        }
+
+        $scope.updateMarker = function() {
+            $scope.geoMap.addMarker('abc', 6.8984339, 79.8572858, "Commercial Bank");
+        }
+
+        $scope.removeMarker = function() {
+            $scope.geoMap.removeMarker('abc');
+        }
+
+        $scope.onMapSelection = function() {
+            if ($scope.geoMap) {
+                $scope.geoMap.remove();
+                $scope.geoMap = null;
+            }
+
+            if ($scope.selectedMap == "current-location") {
+                $scope.geoMap = new GeoMap('map', 44.5, -123.6, zoom);
+                $scope.geoMap.showCurrentLocation('abc', latitude, longitude, "Hello");
+            } else if ($scope.selectedMap == "history") {
+                $scope.geoMap = new GeoMap('map', 44.5, -123.6, zoom);
+                $scope.geoMap.showTimeline(demoTracks);
+
+            } else if ($scope.selectedMap == "heat-map") {
+                $scope.geoMap = new GeoMap('map', -37.87, 175.475, 10);
+                $scope.geoMap.showHeatMap(addressPoints);
+            }
+        }
+    });
+    </script>
+</body>
+
+</html>
